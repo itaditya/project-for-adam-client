@@ -28,9 +28,7 @@ class WorkflowSection extends Component {
   sorter  = {};
 
   componentDidMount() {
-    this.fetch({
-      _page: 1
-    });
+    this.fetch(1);
   }
 
   handleReset = () => {
@@ -81,7 +79,7 @@ class WorkflowSection extends Component {
     this.fetch();
   };
 
-  async fetch() {
+  async fetch(_page) {
     let queryParams = {};
     if(this.stateFilter) {
       queryParams.state = this.stateFilter;
@@ -94,6 +92,8 @@ class WorkflowSection extends Component {
     }
     if(this.state.pagination.current) {
       queryParams._page = this.state.pagination.current;
+    } else {
+      queryParams._page = _page;
     }
     queryParams = {
       ...queryParams,
