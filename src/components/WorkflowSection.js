@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import axios from 'axios';
 
+import { SortColumnMenu } from './SortColumnMenu';
+import { SortOrderMenu } from './SortOrderMenu';
 import { WorkflowTable } from './WorkflowTable';
 import { TableSearch } from './TableSearch';
 
@@ -18,10 +20,45 @@ class WorkflowSection extends Component {
 
   searchText = '';
 
+  sorter  = {
+    _sort: 'title',
+    _order: 'desc'
+  }
+
   componentDidMount() {
     this.fetch({
       _page: 1
     });
+  }
+
+  handleSortColumn = (sortColumn) => {
+    this.sorter = {
+      _sort: sortColumn,
+      _order: this.sorter._order
+    }
+
+    const queryParams = {
+      ...this.sorter,
+      ...this.filters,
+      q: this.searchText,
+      _page: this.state.pagination.current,
+    }
+    this.fetch(queryParams);
+  }
+
+  handleSortOrder = (sortOrder) => {
+    this.sorter = {
+      _sort: this.sorter._sort,
+      _order: sortOrder
+    }
+
+    const queryParams = {
+      ...this.sorter,
+      ...this.filters,
+      q: this.searchText,
+      _page: this.state.pagination.current,
+    }
+    this.fetch(queryParams);
   }
 
   handleTableChange = (pagination, filters, sorter) => {
@@ -32,6 +69,7 @@ class WorkflowSection extends Component {
     });
     this.filters = filters;
     const queryParams = {
+      ...this.sorter,
       ...filters,
       _page: pagination.current,
       q: this.searchText
@@ -47,7 +85,6 @@ class WorkflowSection extends Component {
       q: searchText
     };
 
-    console.log(queryParams);
     this.fetch(queryParams);
   };
 
@@ -77,10 +114,14 @@ class WorkflowSection extends Component {
     return (
       <section style={{ padding: '20px' }}>
         <h1>Workflow Status</h1>
-        <TableSearch
-          onSearch={this.handleSearch}
-          style={{ width: 200, marginLeft: 'auto', padding: '10px 0' }}
-        />
+        <nav style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '20px 0' }}>
+          <SortColumnMenu sortBy={this.handleSortColumn} />
+          <SortOrderMenu sortOrder={this.handleSortOrder} style={{ padding: '0 20px' }}/>
+          <TableSearch
+            onSearch={this.handleSearch}
+            style={{ width: 200 }}
+          />
+        </nav>
         <WorkflowTable
           workData={this.state.works}
           loading={this.state.loading}
