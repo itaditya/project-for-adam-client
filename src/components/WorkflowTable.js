@@ -46,25 +46,12 @@ const WorkflowTable = ({ workData, handleTableChange, ...props }) => {
     {
       title: 'Process',
       dataIndex: 'process',
-      key: 'process',
-      filterMultiple: false,
-      filters: [
-        { text: 'Archived', value: 'archived' },
-        { text: 'QC', value: 'qc' },
-        { text: 'Archiving', value: 'archiving' },
-        { text: 'TX Master', value: 'tx-master' }
-      ]
+      key: 'process'
     },
     {
       title: 'State',
       dataIndex: 'state',
-      key: 'state',
-      filterMultiple: false,
-      filters: [
-        { text: 'Completed', value: 'completed' },
-        { text: 'In Progress', value: 'in-progress' },
-        { text: 'Failed', value: 'failed' }
-      ]
+      key: 'state'
     }
   ];
 

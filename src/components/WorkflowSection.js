@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import axios from 'axios';
+import { Button } from 'antd';
 
+import { ProcessFilterMenu } from './ProcessFilterMenu';
+import { StateFilterMenu } from './StateFilterMenu';
 import { SortColumnMenu } from './SortColumnMenu';
 import { SortOrderMenu } from './SortOrderMenu';
 import { WorkflowTable } from './WorkflowTable';
@@ -19,11 +22,10 @@ class WorkflowSection extends Component {
   };
 
   searchText = '';
-
-  sorter  = {
-    _sort: 'title',
-    _order: 'desc'
-  }
+  processFilter = '';
+  stateFilter = '';
+  stateFilter = '';
+  sorter  = {};
 
   componentDidMount() {
     this.fetch({
@@ -31,19 +33,21 @@ class WorkflowSection extends Component {
     });
   }
 
+  handleReset = () => {
+    this.searchText = '';
+    this.processFilter = '';
+    this.stateFilter = '';
+    this.stateFilter = '';
+    this.sorter  = {};
+    this.fetch();
+  }
+
   handleSortColumn = (sortColumn) => {
     this.sorter = {
       _sort: sortColumn,
       _order: this.sorter._order
     }
-
-    const queryParams = {
-      ...this.sorter,
-      ...this.filters,
-      q: this.searchText,
-      _page: this.state.pagination.current,
-    }
-    this.fetch(queryParams);
+    this.fetch();
   }
 
   handleSortOrder = (sortOrder) => {
@@ -51,14 +55,17 @@ class WorkflowSection extends Component {
       _sort: this.sorter._sort,
       _order: sortOrder
     }
+    this.fetch();
+  }
 
-    const queryParams = {
-      ...this.sorter,
-      ...this.filters,
-      q: this.searchText,
-      _page: this.state.pagination.current,
-    }
-    this.fetch(queryParams);
+  handleProcessFilter = (selectedProcess) => {
+    this.processFilter = selectedProcess;
+    this.fetch();
+  }
+
+  handleStateFilter = (selectedState) => {
+    this.stateFilter = selectedState;
+    this.fetch();
   }
 
   handleTableChange = (pagination, filters, sorter) => {
@@ -66,29 +73,32 @@ class WorkflowSection extends Component {
     pager.current = pagination.current;
     this.setState({
       pagination: pager
-    });
-    this.filters = filters;
-    const queryParams = {
-      ...this.sorter,
-      ...filters,
-      _page: pagination.current,
-      q: this.searchText
-    };
-
-    this.fetch(queryParams);
+    }, () => this.fetch());
   };
 
   handleSearch = searchText => {
     this.searchText = searchText;
-    const queryParams = {
-      ...this.filters,
-      q: searchText
-    };
-
-    this.fetch(queryParams);
+    this.fetch();
   };
 
-  async fetch(queryParams) {
+  async fetch() {
+    let queryParams = {};
+    if(this.stateFilter) {
+      queryParams.state = this.stateFilter;
+    }
+    if(this.processFilter) {
+      queryParams.process = this.processFilter;
+    }
+    if(this.searchText) {
+      queryParams.q = this.searchText;
+    }
+    if(this.state.pagination.current) {
+      queryParams._page = this.state.pagination.current;
+    }
+    queryParams = {
+      ...queryParams,
+      ...this.sorter
+    };
     this.setState({ loading: true });
     let works = [];
     let totalCount = 0;
@@ -115,6 +125,9 @@ class WorkflowSection extends Component {
       <section style={{ padding: '20px' }}>
         <h1>Workflow Status</h1>
         <nav style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', padding: '20px 0' }}>
+          <Button onClick={this.handleReset} style={{ marginRight: 'auto' }}>Reset</Button>
+          <ProcessFilterMenu processFilter={this.handleProcessFilter} />
+          <StateFilterMenu stateFilter={this.handleStateFilter} style={{ padding: '0 20px' }}/>
           <SortColumnMenu sortBy={this.handleSortColumn} />
           <SortOrderMenu sortOrder={this.handleSortOrder} style={{ padding: '0 20px' }}/>
           <TableSearch
